@@ -26,7 +26,6 @@ namespace GameReplay.Mod
 		private Texture2D pauseButton;
 		private Texture2D playButton;
         private MethodInfo dispatchMessages;
-        private BattleMode bmode;
 
 		public Player(String saveFolder)
 		{
@@ -49,7 +48,6 @@ namespace GameReplay.Mod
 											scrollsTypes["BattleModeUI"].Methods.GetMethod("Start")[0],
 											scrollsTypes["BattleModeUI"].Methods.GetMethod("Init")[0],
 											scrollsTypes["BattleModeUI"].Methods.GetMethod("Raycast")[0],
-                                            scrollsTypes["BattleMode"].Methods.GetMethod("setupBoard", new Type[]{typeof(GameInfoMessage)}),
 											scrollsTypes["BattleModeUI"].Methods.GetMethod("ShowEndTurn")[0],
 										   };
 		}
@@ -245,11 +243,6 @@ namespace GameReplay.Mod
 
 		public void AfterInvoke(InvocationInfo info, ref object returnValue)
 		{
-            if (info.target is BattleMode && info.targetMethod.Equals("setupBoard"))
-            {
-                this.bmode = (BattleMode)info.target;
-                
-            }
 
 			switch (info.targetMethod)
 			{
