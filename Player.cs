@@ -207,12 +207,14 @@ namespace GameReplay.Mod
 			{
                 Console.WriteLine("nxt replay mssg: "+line);
                 Message msg = MessageFactory.create(MessageFactory.getMessageName(line), line);
-                if (msg is CardInfoMessage) // old replays may have cardinfomessages stored, it buggs with updated scrollsversion ;_;
+
+                if (msg is CardInfoMessage) // CardInfoMessages are not very informative for players :D
                 {
                     jsonms.runParsing();
                     line = jsonms.getNextMessage(); 
                     continue;
                 }
+
                 dispatchMessages.Invoke(App.Communicator, new object[] { msg });
                 if (line.Contains("EndGame") && !(msg is GameChatMessageMessage) && !(msg is RoomChatMessageMessage))
                 {

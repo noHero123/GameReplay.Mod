@@ -24,7 +24,7 @@ namespace GameReplay.Mod
 		public void handleMessage(Message msg)
 		{
 			try {
-			if (msg is BattleRedirectMessage || msg is BattleRejoinMessage || msg is FailMessage || msg is OkMessage || msg is PingMessage || msg is WhisperMessage || msg is CardInfoMessage)
+			if (msg is BattleRedirectMessage || msg is BattleRejoinMessage || msg is FailMessage || msg is OkMessage || msg is PingMessage || msg is WhisperMessage) // whispers are private, pings are uncessary
 			{
 				return;
 			}
