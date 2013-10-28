@@ -84,7 +84,8 @@ namespace GameReplay.Mod
 				MethodDefinition[] defs = new MethodDefinition[] {
 					scrollsTypes["ProfileMenu"].Methods.GetMethod("Start")[0],
 					scrollsTypes["ProfileMenu"].Methods.GetMethod("getButtonRect", new Type[]{typeof(int)}),
-					scrollsTypes["ProfileMenu"].Methods.GetMethod("drawEditButton")[0]
+					scrollsTypes["ProfileMenu"].Methods.GetMethod("drawEditButton")[0],
+                    
 				};
 
 				List<MethodDefinition> list = new List<MethodDefinition>(defs);

@@ -26,6 +26,7 @@ namespace GameReplay.Mod
 		private Texture2D pauseButton;
 		private Texture2D playButton;
         private MethodInfo dispatchMessages;
+        private BattleMode bmode;
 
 		public Player(String saveFolder)
 		{
@@ -40,19 +41,22 @@ namespace GameReplay.Mod
 
 		public static MethodDefinition[] GetPlayerHooks(TypeDefinitionCollection scrollsTypes, int version)
 		{
-            return new MethodDefinition[] { scrollsTypes["MiniCommunicator"].Methods.GetMethod("_handleMessage")[0],
+            return new MethodDefinition[] { 
+                                            //scrollsTypes["MiniCommunicator"].Methods.GetMethod("_handleMessage")[0],
 											scrollsTypes["GUIBattleModeMenu"].Methods.GetMethod("toggleMenu")[0],
 											scrollsTypes["BattleMode"].Methods.GetMethod("OnGUI")[0],
-											scrollsTypes["BattleMode"].Methods.GetMethod("runEffect")[0],
+											//scrollsTypes["BattleMode"].Methods.GetMethod("runEffect")[0],
 											scrollsTypes["BattleModeUI"].Methods.GetMethod("Start")[0],
 											scrollsTypes["BattleModeUI"].Methods.GetMethod("Init")[0],
 											scrollsTypes["BattleModeUI"].Methods.GetMethod("Raycast")[0],
-											scrollsTypes["BattleModeUI"].Methods.GetMethod("ShowEndTurn")[0]
+                                            scrollsTypes["BattleMode"].Methods.GetMethod("setupBoard", new Type[]{typeof(GameInfoMessage)}),
+											scrollsTypes["BattleModeUI"].Methods.GetMethod("ShowEndTurn")[0],
 										   };
 		}
 
 		public bool WantsToReplace (InvocationInfo info)
 		{
+            
 			if (!playing)
 				return false;
 
@@ -166,12 +170,15 @@ namespace GameReplay.Mod
 						idWhite = (msg as GameInfoMessage).getPlayerProfileId (TileColor.white);
 						idBlack = (msg as GameInfoMessage).getPlayerProfileId (TileColor.black);
 					}
-					if (msg is NewEffectsMessage) {
-						if (msg.getRawText ().Contains (idWhite)) {
+					if (msg is NewEffectsMessage && realID== null) {
+                        string strg = "\"HandUpdate\":{\"profileId\":\"";
+						if (msg.getRawText ().Contains (strg+idWhite)) {
 							realID = idWhite;
+                            Console.WriteLine("realid is white");
 						}
-						if (msg.getRawText ().Contains (idBlack)) {
+						if (msg.getRawText ().Contains (strg+idBlack)) {
 							realID = idBlack;
+                            Console.WriteLine("realid is black");
 						}
 					}
 					if (msg is PingMessage) {
@@ -184,19 +191,28 @@ namespace GameReplay.Mod
 			}
 
 			if (realID != null) {
+                Console.WriteLine("replace" + realID + "with" + App.MyProfile.ProfileInfo.id);
 				log = log.Replace (realID, App.MyProfile.ProfileInfo.id);
 			}
-
+            App.SceneValues.battleMode = new SceneValues.SV_BattleMode(GameMode.Play);
 			SceneLoader.loadScene("_BattleModeView");
+            
 			//App.Communicator.setData(log);//doesnt seem to work anymore ( game stops to work )
             jsonms.clear();
             jsonms.feed(log);
             jsonms.runParsing();
+            Console.WriteLine("Playing:\r\n" + log);
             line = jsonms.getNextMessage();
 			while (playing)
 			{
                 Console.WriteLine("nxt replay mssg: "+line);
                 Message msg = MessageFactory.create(MessageFactory.getMessageName(line), line);
+                if (msg is CardInfoMessage) // old replays may have cardinfomessages stored, it buggs with updated scrollsversion ;_;
+                {
+                    jsonms.runParsing();
+                    line = jsonms.getNextMessage(); 
+                    continue;
+                }
                 dispatchMessages.Invoke(App.Communicator, new object[] { msg });
                 if (line.Contains("EndGame") && !(msg is GameChatMessageMessage) && !(msg is RoomChatMessageMessage))
                 {
@@ -208,7 +224,8 @@ namespace GameReplay.Mod
                         jsonms.runParsing();
                         line = jsonms.getNextMessage();
                 }
-
+                readNextMsg = false;
+                if (msg is GameChatMessageMessage || msg is PingMessage ) readNextMsg = true;
 				if (readNextMsg == false)
 				{
 					//delay messages otherwise the game rushes through in about a minute.
@@ -217,7 +234,7 @@ namespace GameReplay.Mod
 					{
 						Thread.Sleep(1000);
 					}
-					readNextMsg = true;
+					//readNextMsg = true;
 				}
 			}
             Console.WriteLine("player stoped");
@@ -226,6 +243,12 @@ namespace GameReplay.Mod
 
 		public void AfterInvoke(InvocationInfo info, ref object returnValue)
 		{
+            if (info.target is BattleMode && info.targetMethod.Equals("setupBoard"))
+            {
+                this.bmode = (BattleMode)info.target;
+                
+            }
+
 			switch (info.targetMethod)
 			{
 				case "Start":
