@@ -53,7 +53,7 @@ namespace GameReplay.Mod
 			//steaming
 			} catch {}
 		}
-		public void onReconnect()
+		public void onConnect(OnConnectData ocd)
 		{
 			return; //I (still) don't care
 		}

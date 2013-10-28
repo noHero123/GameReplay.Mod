@@ -63,7 +63,7 @@ namespace GameReplay.Mod
 			} catch {}
 		}
 
-		public void onReconnect()
+		public void onConnect(OnConnectData ocd)
 		{
 			return;
 		}
@@ -83,7 +83,7 @@ namespace GameReplay.Mod
 			try {
 				MethodDefinition[] defs = new MethodDefinition[] {
 					scrollsTypes["ProfileMenu"].Methods.GetMethod("Start")[0],
-					scrollsTypes["ProfileMenu"].Methods.GetMethod("getButtonRect")[0],
+					scrollsTypes["ProfileMenu"].Methods.GetMethod("getButtonRect", new Type[]{typeof(int)}),
 					scrollsTypes["ProfileMenu"].Methods.GetMethod("drawEditButton")[0]
 				};
 
@@ -99,9 +99,10 @@ namespace GameReplay.Mod
 		public override bool WantsToReplace (InvocationInfo info)
 		{
 			if (info.targetMethod.Equals ("getButtonRect")) {
+
 				foreach (StackFrame frame in info.stackTrace.GetFrames()) {
 					if (frame.GetMethod ().Name.Contains ("BeforeInvoke")) {
-						break;
+                        break;
 					}
 					if (frame.GetMethod ().Name.Contains ("drawEditButton")) {
 						return true;
@@ -112,11 +113,14 @@ namespace GameReplay.Mod
 		}
 
 		public override void ReplaceMethod (InvocationInfo info, out object returnValue) {
-			if (info.targetMethod.Equals("getButtonRect"))
-			{
-				returnValue = typeof(ProfileMenu).GetMethod("getButtonRect", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(info.target, new object[] { 2 });
-			}
-			player.ReplaceMethod (info, out returnValue);
+            if (info.target is ProfileMenu && info.targetMethod.Equals("getButtonRect"))
+            {
+                returnValue = (Rect)typeof(ProfileMenu).GetMethod("getButtonRect", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(info.target, new object[] { 2 });
+            }
+            else
+            {
+                player.ReplaceMethod(info, out returnValue);
+            }
 		}
 
 		public override void BeforeInvoke(InvocationInfo info)
@@ -133,8 +137,8 @@ namespace GameReplay.Mod
 				recordListPopup.enabled = true;
 				recordListPopup.SetOpacity(1f);
 			}
-			if (info.targetMethod.Equals("drawEditButton"))
-			{
+            if (info.target is ProfileMenu &&  info.targetMethod.Equals("drawEditButton"))
+            {
 				Rect rect = (Rect)typeof(ProfileMenu).GetField("frameRect", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(info.target);
 				//LobbyMenu.drawShadowText (new Rect(rect.center.x-(float)Screen.width/8.0f/2.0f, rect.center.y-rect.height/2.0f-(float)Screen.height*0.055f*3.0f-40.0f, (float)Screen.width/8.0f, 35.0f), "Match History", Color.white);
 
@@ -294,11 +298,11 @@ namespace GameReplay.Mod
 			{
 				try
 				{
-					Message msg = Message.createMessage(Message.getMessageName(line), line);
+                    Message msg = MessageFactory.create(MessageFactory.getMessageName(line), line);
 					if (msg is GameInfoMessage)
 					{
 						GameInfoMessage gim = (GameInfoMessage) msg;
-						if (gim.white.Equals(App.Communicator.getUserScreenName()))
+						if (gim.white.Equals(App.MyProfile.ProfileInfo.name))
 						{
 							player1name = gim.white;
 							player2name = gim.black;
@@ -308,7 +312,7 @@ namespace GameReplay.Mod
 							player1name = gim.black;
 							player2name = gim.white;
 						}
-						deckName = (msg as GameInfoMessage).deck;
+						deckName = ""; //deckname isnt in gameinfomessage anymore
 					}
 					if (msg is ActiveResourcesMessage)
 					{
@@ -456,7 +460,7 @@ namespace GameReplay.Mod
 		private NameValueCollection getPostParams()
 		{
 			NameValueCollection nvc = new NameValueCollection();
-			nvc.Add("from", App.Communicator.getUserScreenName()); // player's username
+			nvc.Add("from", App.MyProfile.ProfileInfo.name); // player's username
 			nvc.Add("gid", Convert.ToString(toUpload.getId())); // game id
 			nvc.Add("mtime", Convert.ToString(Extensions.ToUnixTimestamp(File.GetCreationTimeUtc(toUpload.fileName())))); // creation time
 

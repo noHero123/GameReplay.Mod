@@ -25,6 +25,7 @@ namespace GameReplay.Mod
 		private GameObject endGameButton;
 		private Texture2D pauseButton;
 		private Texture2D playButton;
+        private MethodInfo dispatchMessages;
 
 		public Player(String saveFolder)
 		{
@@ -34,11 +35,12 @@ namespace GameReplay.Mod
 			pauseButton = new Texture2D(83, 131);
 			pauseButton.LoadImage(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("GameReplay.Mod.Pause.png").ReadToEnd());
 			//this.saveFolder = saveFolder;
+            dispatchMessages = typeof(MiniCommunicator).GetMethod("_dispatchMessageToListeners", BindingFlags.NonPublic | BindingFlags.Instance);
 		}
 
 		public static MethodDefinition[] GetPlayerHooks(TypeDefinitionCollection scrollsTypes, int version)
 		{
-			return new MethodDefinition[] { scrollsTypes["Communicator"].Methods.GetMethod("handleNextMessage")[0],
+            return new MethodDefinition[] { scrollsTypes["MiniCommunicator"].Methods.GetMethod("_handleMessage")[0],
 											scrollsTypes["GUIBattleModeMenu"].Methods.GetMethod("toggleMenu")[0],
 											scrollsTypes["BattleMode"].Methods.GetMethod("OnGUI")[0],
 											scrollsTypes["BattleMode"].Methods.GetMethod("runEffect")[0],
@@ -60,7 +62,7 @@ namespace GameReplay.Mod
 				{
 					return paused;
 				}
-				case "handleNextMessage":
+                case "_handleMessage":
 				{
 					return paused | !readNextMsg;
 				}
@@ -73,12 +75,13 @@ namespace GameReplay.Mod
 		}
 
 		public void ReplaceMethod (InvocationInfo info, out object returnValue) {
+            returnValue = null;
 			switch ((String)info.targetMethod) {
 				case "ShowEndTurn":
 				case "runEffect":
 					returnValue = null;
 					return;
-				case "handleNextMessage":
+                case "_handleMessage":
 					returnValue = true;
 					return;
 			}
@@ -96,7 +99,7 @@ namespace GameReplay.Mod
 						}
 					}
 					break;
-				case "handleNextMessage":
+                case "_handleMessage":
 					{
 						if (playing && readNextMsg != false)
 						{
@@ -122,10 +125,10 @@ namespace GameReplay.Mod
 			if (playing && msg is NewEffectsMessage && msg.getRawText().Contains("EndGame"))
 			{
 				playing = false;
-				App.Communicator.setData("");
+				//App.Communicator.setData("");
 			}
 		}
-		public void onReconnect()
+		public void onConnect(OnConnectData ocd)
 		{
 			return;
 		}
@@ -139,6 +142,7 @@ namespace GameReplay.Mod
 			replay = new Thread(new ThreadStart(LaunchReplay));
 			replay.Start();
 		}
+
 
 		private void LaunchReplay()
 		{
@@ -157,7 +161,7 @@ namespace GameReplay.Mod
 
 			while (line != null) {
 				try {
-					Message msg = Message.createMessage (Message.getMessageName (line), line);
+                    Message msg = MessageFactory.create(MessageFactory.getMessageName(line), line); 
 					if (msg is GameInfoMessage) {
 						idWhite = (msg as GameInfoMessage).getPlayerProfileId (TileColor.white);
 						idBlack = (msg as GameInfoMessage).getPlayerProfileId (TileColor.black);
@@ -184,10 +188,27 @@ namespace GameReplay.Mod
 			}
 
 			SceneLoader.loadScene("_BattleModeView");
-			App.Communicator.setData(log);
-
+			//App.Communicator.setData(log);//doesnt seem to work anymore ( game stops to work )
+            jsonms.clear();
+            jsonms.feed(log);
+            jsonms.runParsing();
+            line = jsonms.getNextMessage();
 			while (playing)
 			{
+                Console.WriteLine("nxt replay mssg: "+line);
+                Message msg = MessageFactory.create(MessageFactory.getMessageName(line), line);
+                dispatchMessages.Invoke(App.Communicator, new object[] { msg });
+                if (line.Contains("EndGame") && !(msg is GameChatMessageMessage) && !(msg is RoomChatMessageMessage))
+                {
+                    playing = false;
+
+                }
+                else
+                {
+                        jsonms.runParsing();
+                        line = jsonms.getNextMessage();
+                }
+
 				if (readNextMsg == false)
 				{
 					//delay messages otherwise the game rushes through in about a minute.
@@ -199,6 +220,7 @@ namespace GameReplay.Mod
 					readNextMsg = true;
 				}
 			}
+            Console.WriteLine("player stoped");
 
 		}
 
