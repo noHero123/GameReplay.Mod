@@ -151,7 +151,6 @@ namespace GameReplay.Mod
 			playing = true;
 
 			String log = File.ReadAllText (fileName).Split(new char[] {'}'}, 2)[1];
-
 			//FIX Profile ID
 			JsonMessageSplitter jsonms = new JsonMessageSplitter();
 			jsonms.feed(log);
@@ -160,7 +159,7 @@ namespace GameReplay.Mod
 			String idWhite = null;
 			String idBlack = null;
 			String realID = null;
-
+            /*Console.WriteLine("FIX ID "+line);
 			while (line != null) {
 				try {
                     Message msg = MessageFactory.create(MessageFactory.getMessageName(line), line); 
@@ -187,14 +186,14 @@ namespace GameReplay.Mod
 				jsonms.runParsing();
 				line = jsonms.getNextMessage();
 			}
-
+            */
 			if (realID != null) {
                 Console.WriteLine("replace" + realID + "with" + App.MyProfile.ProfileInfo.id);
 				log = log.Replace (realID, App.MyProfile.ProfileInfo.id);
 			}
-            App.SceneValues.battleMode = new SceneValues.SV_BattleMode(GameMode.Play);
+            App.SceneValues.battleMode = new SceneValues.SV_BattleMode(GameMode.Replay);//GameMode.Play
 			SceneLoader.loadScene("_BattleModeView");
-            
+            //App.SceneValues.battleMode.gameMode = GameMode.Replay;
 			//App.Communicator.setData(log);//doesnt seem to work anymore ( game stops to work )
             jsonms.clear();
             jsonms.feed(log);
@@ -203,6 +202,7 @@ namespace GameReplay.Mod
             line = jsonms.getNextMessage();
 			while (playing)
 			{
+                App.Communicator.setEnabled(true, true);
                 Console.WriteLine("nxt replay mssg: "+line);
                 Message msg = MessageFactory.create(MessageFactory.getMessageName(line), line);
 
@@ -212,6 +212,8 @@ namespace GameReplay.Mod
                     line = jsonms.getNextMessage(); 
                     continue;
                 }
+               
+                
 
                 dispatchMessages.Invoke(App.Communicator, new object[] { msg });
                 if (line.Contains("EndGame") && !(msg is GameChatMessageMessage) && !(msg is RoomChatMessageMessage))

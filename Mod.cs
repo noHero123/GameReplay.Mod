@@ -18,13 +18,14 @@ namespace GameReplay.Mod
 {
 	public class Mod : BaseMod, ICommListener, IListCallback, IOkStringCancelCallback, IOkCallback
 	{
-		private Recorder recorder;
+		private Recorder recorder = null;
 		private Player player;
 		private UIListPopup recordListPopup;
 		List<Item> recordList = new List<Item>();
 		private Record selectedRecord;
 
 		private String recordFolder;
+        private bool spectating = false;
 
 		public Mod()
 		{
@@ -40,6 +41,7 @@ namespace GameReplay.Mod
 			} catch {}
 
 			new Thread (new ThreadStart (parseRecords)).Start ();
+            Console.WriteLine("loaded Recorder");
 		}
 
 		public static string GetName()
@@ -49,7 +51,7 @@ namespace GameReplay.Mod
 
 		public static int GetVersion()
 		{
-			return 1;
+			return 6;
 		}
 
 		public void handleMessage(Message msg)
@@ -57,10 +59,22 @@ namespace GameReplay.Mod
 			try {
 				if (msg is BattleRedirectMessage)
 				{
+                    this.spectating = false;
 					recorder = new Recorder(recordFolder, this);
 					Console.WriteLine("Recorder started: " + recorder);
 				}
 			} catch {}
+            //try
+            //{
+                if (msg is SpectateRedirectMessage)
+                {
+                    this.spectating = true;
+                    recorder = new Recorder(recordFolder, this);
+                    Console.WriteLine("Recorder started: " + recorder + " (Spectator)");
+                    
+                }
+            //}
+            //catch { }
 		}
 
 		public void onConnect(OnConnectData ocd)
@@ -85,6 +99,8 @@ namespace GameReplay.Mod
 					scrollsTypes["ProfileMenu"].Methods.GetMethod("Start")[0],
 					scrollsTypes["ProfileMenu"].Methods.GetMethod("getButtonRect", new Type[]{typeof(int)}),
 					scrollsTypes["ProfileMenu"].Methods.GetMethod("drawEditButton")[0],
+                    scrollsTypes["BattleMode"].Methods.GetMethod("Start")[0],
+                    scrollsTypes["Communicator"].Methods.GetMethod("joinLobby", new Type[]{typeof(bool)}),
                     
 				};
 
@@ -169,7 +185,19 @@ namespace GameReplay.Mod
 
 		public override void AfterInvoke(InvocationInfo info, ref object returnValue)
 		{
-			player.AfterInvoke(info, ref returnValue);
+            if (info.target is Communicator && info.targetMethod.Equals("joinLobby") && recorder != null &&recorder.recording==true)
+            {
+                recorder.stoprecording();
+            }
+            if (info.target is BattleMode && info.targetMethod.Equals("Start") && this.spectating)
+            {
+                recorder.recordSpectator();
+                Console.WriteLine("## (Spectator)");
+            }
+            if (!(info.target is BattleMode) || (info.target is BattleMode && !info.targetMethod.Equals("Start")) || (info.target is Communicator && !info.targetMethod.Equals("joinLobby")))
+            {
+                player.AfterInvoke(info, ref returnValue);
+            }
 		}
 
 		public void ButtonClicked(UIListPopup popup, ECardListButton button)
