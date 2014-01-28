@@ -23,18 +23,29 @@ namespace GameReplay.Mod
 		private UIListPopup recordListPopup;
 		List<Item> recordList = new List<Item>();
 		private Record selectedRecord;
-
+        private Settings sttngs;
 		private String recordFolder;
         private bool spectating = false;
 
-		public Mod()
+        private GUISkin guiSkin;
+
+        private FieldInfo currentEffectField=typeof(BattleMode).GetField("currentEffect", BindingFlags.NonPublic | BindingFlags.Instance);
+        private FieldInfo frameRectField = typeof(ProfileMenu).GetField("frameRect", BindingFlags.Instance | BindingFlags.NonPublic);
+        private FieldInfo showEditField = typeof(ProfileMenu).GetField("showEdit", BindingFlags.Instance | BindingFlags.NonPublic);
+		//private MethodInfo getButtonRectMethod= typeof(ProfileMenu).GetMethod("getButtonRect", BindingFlags.NonPublic | BindingFlags.Instance);
+        //private FieldInfo guiSkinField=typeof(ProfileMenu).GetField("guiSkin", BindingFlags.Instance | BindingFlags.NonPublic);
+        private FieldInfo usernameStyleField=typeof(ProfileMenu).GetField("usernameStyle", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        public Mod()
 		{
+            this.guiSkin = (GUISkin)Resources.Load("_GUISkins/Lobby");
 			recordFolder = this.OwnFolder() + Path.DirectorySeparatorChar + "Records";
 			if (!Directory.Exists(recordFolder + Path.DirectorySeparatorChar))
 			{
 				Directory.CreateDirectory(recordFolder + Path.DirectorySeparatorChar);
 			}
 			player = new Player(recordFolder);
+            sttngs = new Settings(recordFolder);
 
 			try {
 				App.Communicator.addListener(this);
@@ -51,7 +62,7 @@ namespace GameReplay.Mod
 
 		public static int GetVersion()
 		{
-			return 6;
+			return 7;
 		}
 
 		public void handleMessage(Message msg)
@@ -60,7 +71,7 @@ namespace GameReplay.Mod
 				if (msg is BattleRedirectMessage)
 				{
                     this.spectating = false;
-					recorder = new Recorder(recordFolder, this);
+					recorder = new Recorder(recordFolder, this, this.sttngs);
 					Console.WriteLine("Recorder started: " + recorder);
 				}
 			} catch {}
@@ -69,7 +80,7 @@ namespace GameReplay.Mod
                 if (msg is SpectateRedirectMessage)
                 {
                     this.spectating = true;
-                    recorder = new Recorder(recordFolder, this);
+                    recorder = new Recorder(recordFolder, this, this.sttngs);
                     Console.WriteLine("Recorder started: " + recorder + " (Spectator)");
                     
                 }
@@ -100,6 +111,9 @@ namespace GameReplay.Mod
 					scrollsTypes["ProfileMenu"].Methods.GetMethod("getButtonRect", new Type[]{typeof(int)}),
 					scrollsTypes["ProfileMenu"].Methods.GetMethod("drawEditButton")[0],
                     scrollsTypes["BattleMode"].Methods.GetMethod("Start")[0],
+                    scrollsTypes["BattleMode"].Methods.GetMethod("effectDone")[0],
+                    scrollsTypes["BattleModeUI"].Methods.GetMethod("Start")[0],
+                    scrollsTypes["SettingsMenu"].Methods.GetMethod("OnGUI")[0],
                     scrollsTypes["Communicator"].Methods.GetMethod("joinLobby", new Type[]{typeof(bool)}),
                     
 				};
@@ -149,17 +163,17 @@ namespace GameReplay.Mod
 
 				recordListPopup = new GameObject("Record List").AddComponent<UIListPopup>();
 				recordListPopup.transform.parent = ((ProfileMenu)info.target).transform;
-				Rect frame = (Rect)typeof(ProfileMenu).GetField("frameRect", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(info.target);
+                Rect frame = (Rect)frameRectField.GetValue(info.target);
 				recordListPopup.Init(new Rect(frame.center.x - frame.width / 2.0f, frame.center.y - frame.height / 2.0f + 32.0f, frame.width, frame.height - (float)Screen.height * 0.055f * 3.0f), false, true, recordList, this, null, null, false, true, false, true, null, true, false);
 				recordListPopup.enabled = true;
 				recordListPopup.SetOpacity(1f);
 			}
             if (info.target is ProfileMenu &&  info.targetMethod.Equals("drawEditButton"))
             {
-				Rect rect = (Rect)typeof(ProfileMenu).GetField("frameRect", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(info.target);
+                Rect rect = (Rect)frameRectField.GetValue(info.target);
 				//LobbyMenu.drawShadowText (new Rect(rect.center.x-(float)Screen.width/8.0f/2.0f, rect.center.y-rect.height/2.0f-(float)Screen.height*0.055f*3.0f-40.0f, (float)Screen.width/8.0f, 35.0f), "Match History", Color.white);
 
-				if ((bool)typeof(ProfileMenu).GetField("showEdit", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(info.target))
+                if ((bool)showEditField.GetValue(info.target))
 				{
 					recordListPopup.enabled = false;
 					recordListPopup.SetOpacity(0f);
@@ -169,36 +183,88 @@ namespace GameReplay.Mod
 					new ScrollsFrame(new Rect(rect.center.x - rect.width / 2.0f - 20.0f, rect.center.y - rect.height / 2.0f, rect.width + 40.0f, rect.height - (float)Screen.height * 0.055f - 20.0f)).AddNinePatch(ScrollsFrame.Border.DARK_CURVED, NinePatch.Patches.CENTER).Draw();
 					recordListPopup.enabled = true;
 					recordListPopup.SetOpacity(1f);
-					GUIStyle labelSkin = (GUIStyle)typeof(ProfileMenu).GetField("usernameStyle", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(info.target);
+                    GUIStyle labelSkin = (GUIStyle)usernameStyleField.GetValue(info.target);
 					labelSkin.fontSize = 32;
 					GUI.Label(new Rect(rect.center.x - (float)Screen.width / 6.0f / 2.0f, rect.center.y - rect.height / 2.0f - 40.0f, (float)Screen.width / 6.0f, 35.0f), "Match History", labelSkin);
-					if (LobbyMenu.drawButton((Rect)typeof(ProfileMenu).GetMethod("getButtonRect", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(info.target, new object[] { 0 }), "Load Replay", (GUISkin)typeof(ProfileMenu).GetField("guiSkin", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(info.target)))
+                    if (LobbyMenu.drawButton((Rect)this.sttngs.getButtonRect(0), "Load Replay", this.guiSkin ))//  getButtonRectMethod.Invoke(info.target, new object[] { 0 }) ,  (GUISkin)guiSkinField.GetValue(info.target)
 					{
 						LoadReplay();
 					}
+                    
 				}
 			}
+            if (info.target is BattleMode && info.targetMethod.Equals("effectDone"))
+            {
+                try
+                {
+                    EffectMessage currentEffect = ((EffectMessage)currentEffectField.GetValue(info.target));
+                    if (currentEffect != null && currentEffect.type == "TurnBegin")
+                    {
+                        recorder.turnBeginEnds();
+                    }
+                }
+                catch { }
+
+            }
+
 			if (!(info.target is ProfileMenu))
 				player.BeforeInvoke(info);
 		}
 
+        
+
 
 		public override void AfterInvoke(InvocationInfo info, ref object returnValue)
-		{
-            if (info.target is Communicator && info.targetMethod.Equals("joinLobby") && recorder != null &&recorder.recording==true)
+        {
+            if (info.target is SettingsMenu && info.targetMethod.Equals("OnGUI"))
+            {
+
+                string label = "ask after match";
+                if (!this.sttngs.alwayssave) label = "never ask";
+                if (LobbyMenu.drawButton((Rect)this.sttngs.getButtonRect(1), label, this.guiSkin))//(GUISkin)guiSkinField.GetValue(info.target)
+                {
+                    this.sttngs.alwayssave = !this.sttngs.alwayssave;
+                    this.sttngs.saveSettings();
+                }
+            }
+            if (info.target is Communicator && info.targetMethod.Equals("joinLobby") && recorder != null && recorder.recording == true)
             {
                 recorder.stoprecording();
             }
-            if (info.target is BattleMode && info.targetMethod.Equals("Start") && this.spectating)
+            if (info.target is BattleMode && info.targetMethod.Equals("Start"))
             {
-                recorder.recordSpectator();
-                Console.WriteLine("## (Spectator)");
+                player.setbm(info.target as BattleMode);
             }
-            if (!(info.target is BattleMode) || (info.target is BattleMode && !info.targetMethod.Equals("Start")) || (info.target is Communicator && !info.targetMethod.Equals("joinLobby")))
+            if (info.target is BattleMode && info.targetMethod.Equals("Start") && this.player.playing)
+            {
+                App.ChatUI.Show(false);
+                App.ChatUI.SetMode(OnlineState.SPECTATE);
+                App.ChatUI.SetLocked(false, (float)Screen.height * 0.25f);
+                App.Communicator.setEnabled(true, true);
+                App.ChatUI.SetEnabled(true);
+                Console.WriteLine("playing + battlemodestart");
+            }
+            if (info.target is BattleMode && info.targetMethod.Equals("Start") && recorder != null && recorder.recording == true)
+            {
+
+                recorder.setBm(info.target as BattleMode);
+                if (this.spectating)
+                {
+                    recorder.recordSpectator();
+                    Console.WriteLine("## (Spectator)");
+                }
+            }
+
+            if (info.target is BattleModeUI && info.targetMethod.Equals("Start") && recorder != null && recorder.recording == true)
+            {
+                recorder.setBmUI(info.target as BattleModeUI);
+            }
+
+            if (!(info.target is BattleMode) || (info.target is BattleMode && (!info.targetMethod.Equals("Start") && !info.targetMethod.Equals("effectDone"))) || (info.target is Communicator && !info.targetMethod.Equals("joinLobby")))
             {
                 player.AfterInvoke(info, ref returnValue);
             }
-		}
+        }
 
 		public void ButtonClicked(UIListPopup popup, ECardListButton button)
 		{
@@ -363,7 +429,11 @@ namespace GameReplay.Mod
 			if (recordListPopup != null)
 				recordListPopup.SetItemList (recordList);
 		}
-	}
+
+        
+
+    
+    }
 
 	internal class RegexPattern
 	{
