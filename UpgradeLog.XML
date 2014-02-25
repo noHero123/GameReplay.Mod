@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="GameReplay.Mod">
+</Property><Property Name="Projektmappendatei" Value="C:\Users\Thele\Documents\GitHub\GameReplay.Mod\GameReplay.Mod.sln">
+</Property><Property Name="Date" Value="Samstag, 26. Oktober 2013">
+</Property><Property Name="Time" Value="10:29:45">
+</Property></Properties><Event ErrorLevel="0" Project="GameReplay.Mod" Source="GameReplay.Mod.csproj" Description="Projektdatei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\GameReplay.Mod.csproj">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="Properties\AssemblyInfo.cs" Description="Datei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\Properties\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="Extensions.cs" Description="Datei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\Extensions.cs">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="ICardListCallback.cs" Description="Datei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\ICardListCallback.cs">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="JsonMessageSplitter.cs" Description="Datei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\JsonMessageSplitter.cs">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="ListItem.cs" Description="Datei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\ListItem.cs">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="Mod.cs" Description="Datei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\Mod.cs">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="Player.cs" Description="Datei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\Player.cs">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="ProfileMenuList.cs" Description="Datei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\ProfileMenuList.cs">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="Recorder.cs" Description="Datei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\Recorder.cs">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="UIListPopup.cs" Description="Datei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\UIListPopup.cs">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="ResultMessage.cs" Description="Datei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\ResultMessage.cs">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="Pause.png" Description="Datei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\Pause.png">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="Play.png" Description="Datei erfolgreich gesichert als C:\Users\Thele\Documents\GitHub\GameReplay.Mod\Backup\Play.png">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="GameReplay.Mod.csproj" Description="Projekt erfolgreich konvertiert">
+</Event><Event ErrorLevel="3" Project="GameReplay.Mod" Source="GameReplay.Mod.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="GameReplay.Mod" Source="GameReplay.Mod.csproj" Description="Überprüfung abgeschlossen: Upgrade der Projektdateien nicht erforderlich.">
+</Event></UpgradeLog>

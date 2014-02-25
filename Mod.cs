@@ -26,6 +26,8 @@ namespace GameReplay.Mod
         private Settings sttngs;
 		private String recordFolder;
         private bool spectating = false;
+        private BattleMode bm = null;
+        private BattleModeUI bmui = null;
 
         private GUISkin guiSkin;
 
@@ -62,7 +64,7 @@ namespace GameReplay.Mod
 
 		public static int GetVersion()
 		{
-			return 7;
+			return 8;
 		}
 
 		public void handleMessage(Message msg)
@@ -195,15 +197,11 @@ namespace GameReplay.Mod
 			}
             if (info.target is BattleMode && info.targetMethod.Equals("effectDone"))
             {
-                try
-                {
                     EffectMessage currentEffect = ((EffectMessage)currentEffectField.GetValue(info.target));
                     if (currentEffect != null && currentEffect.type == "TurnBegin")
                     {
                         recorder.turnBeginEnds();
                     }
-                }
-                catch { }
 
             }
 
@@ -246,7 +244,6 @@ namespace GameReplay.Mod
             }
             if (info.target is BattleMode && info.targetMethod.Equals("Start") && recorder != null && recorder.recording == true)
             {
-
                 recorder.setBm(info.target as BattleMode);
                 if (this.spectating)
                 {
@@ -255,9 +252,11 @@ namespace GameReplay.Mod
                 }
             }
 
+
             if (info.target is BattleModeUI && info.targetMethod.Equals("Start") && recorder != null && recorder.recording == true)
             {
                 recorder.setBmUI(info.target as BattleModeUI);
+                
             }
 
             if (!(info.target is BattleMode) || (info.target is BattleMode && (!info.targetMethod.Equals("Start") && !info.targetMethod.Equals("effectDone"))) || (info.target is Communicator && !info.targetMethod.Equals("joinLobby")))
