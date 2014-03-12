@@ -41,8 +41,11 @@ namespace GameReplay.Mod
         public Mod()
 		{
             this.guiSkin = (GUISkin)Resources.Load("_GUISkins/Lobby");
-			recordFolder = this.OwnFolder() + Path.DirectorySeparatorChar + "Records";
-			if (!Directory.Exists(recordFolder + Path.DirectorySeparatorChar))
+			//recordFolder = this.OwnFolder() + Path.DirectorySeparatorChar + "Records";
+            string homePath = (Environment.OSVersion.Platform == PlatformID.Unix ||Environment.OSVersion.Platform == PlatformID.MacOSX)? Environment.GetEnvironmentVariable("HOME") : Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%");
+            recordFolder = homePath + Path.DirectorySeparatorChar + "ScrollsRecords";
+
+            if (!Directory.Exists(recordFolder + Path.DirectorySeparatorChar))
 			{
 				Directory.CreateDirectory(recordFolder + Path.DirectorySeparatorChar);
 			}
@@ -64,7 +67,7 @@ namespace GameReplay.Mod
 
 		public static int GetVersion()
 		{
-			return 8;
+			return 9;
 		}
 
 		public void handleMessage(Message msg)
@@ -198,7 +201,7 @@ namespace GameReplay.Mod
             if (info.target is BattleMode && info.targetMethod.Equals("effectDone"))
             {
                     EffectMessage currentEffect = ((EffectMessage)currentEffectField.GetValue(info.target));
-                    if (currentEffect != null && currentEffect.type == "TurnBegin")
+                    if (currentEffect != null && currentEffect.type == "TurnBegin" && recorder != null && recorder.recording == true)
                     {
                         recorder.turnBeginEnds();
                     }
