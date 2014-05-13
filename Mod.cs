@@ -67,7 +67,7 @@ namespace GameReplay.Mod
 
 		public static int GetVersion()
 		{
-			return 9;
+			return 10;
 		}
 
 		public void handleMessage(Message msg)
@@ -287,7 +287,13 @@ namespace GameReplay.Mod
 		{
 			//player.LaunchReplay (((Record)card).fileName());
 			selectedRecord = (Record)card;
-			App.Popups.ShowMultibutton(this, "Replayer", card.getDesc(), new string[] { "Play", "Share", "Delete" });
+			//App.Popups.ShowMultibutton(this, "Replayer", card.getDesc(), new string[] { "Play", "Share", "Delete" });
+            App.Popups.ShowMultibutton(this, "Replayer", card.getDesc(), new GUIContent[]
+			{
+				new GUIContent("Play"),
+				new GUIContent("Share"),
+				new GUIContent("Delete")
+			});
 		}
 
 		public void ItemHovered(UIListPopup popup, Item card)
@@ -297,7 +303,12 @@ namespace GameReplay.Mod
 
 		public void LoadReplay()
 		{
-			App.Popups.ShowMultibutton(this, "Load", "Load", new string[] { "From File", "From Link" });
+			//App.Popups.ShowMultibutton(this, "Load", "Load", new string[] { "From File", "From Link" });
+            App.Popups.ShowMultibutton(this, "Load", "Load", new GUIContent[]
+			{
+				new GUIContent("From File"),
+				new GUIContent("From Link")
+			});
 		}
 
 		public void PopupOk(string popupType, string choice)

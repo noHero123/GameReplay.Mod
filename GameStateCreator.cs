@@ -60,8 +60,8 @@ namespace GameReplay.Mod
             retval = retval + "],\"idols\":[" + this.whiteIdols[0] + "," + this.whiteIdols[1] + "," + this.whiteIdols[2] + "," + this.whiteIdols[3] + "," + this.whiteIdols[4] + "]},";
             //board finished
             //"assets":{"availableResources":{"DECAY":0,"ORDER":4,"ENERGY":0,"GROWTH":0},"outputResources":{"DECAY":0,"ORDER":5,"ENERGY":0,"GROWTH":0},
-            retval = retval + "\"assets\":{\"availableResources\":{\"DECAY\":" + whiteplayer.availableResources.DECAY + ",\"ORDER\":" + whiteplayer.availableResources.ORDER + ",\"ENERGY\":" + whiteplayer.availableResources.ENERGY + ",\"GROWTH\":" + whiteplayer.availableResources.GROWTH + "},";
-            retval = retval + "\"outputResources\":{\"DECAY\":" + whiteplayer.outputResources.DECAY + ",\"ORDER\":" + whiteplayer.outputResources.ORDER + ",\"ENERGY\":" + whiteplayer.outputResources.ENERGY + ",\"GROWTH\":" + whiteplayer.outputResources.GROWTH + "},";
+            retval = retval + "\"assets\":{\"availableResources\":{\"DECAY\":" + whiteplayer.availableResources.DECAY + ",\"ORDER\":" + whiteplayer.availableResources.ORDER + ",\"ENERGY\":" + whiteplayer.availableResources.ENERGY + ",\"GROWTH\":" + whiteplayer.availableResources.GROWTH + ",\"SPECIAL\":" + whiteplayer.availableResources.SPECIAL + "},";
+            retval = retval + "\"outputResources\":{\"DECAY\":" + whiteplayer.outputResources.DECAY + ",\"ORDER\":" + whiteplayer.outputResources.ORDER + ",\"ENERGY\":" + whiteplayer.outputResources.ENERGY + ",\"GROWTH\":" + whiteplayer.outputResources.GROWTH + ",\"SPECIAL\":" + whiteplayer.outputResources.SPECIAL + "},";
             //"handSize":4,"librarySize":30,"graveyardSize":12}},
             retval = retval + "\"handSize\":" + whiteplayer.handSize + ",\"librarySize\":" + whiteplayer.librarySize +",\"graveyardSize\":" + whiteplayer.graveyardSize +"}},";
             
@@ -74,8 +74,8 @@ namespace GameReplay.Mod
             retval = retval + "],\"idols\":[" + this.blackIdols[0] + "," + this.blackIdols[1] + "," + this.blackIdols[2] + "," + this.blackIdols[3]  +"," + this.blackIdols[4] + "]},";
             //board finished
             //"assets":{"availableResources":{"DECAY":0,"ORDER":0,"ENERGY":6,"GROWTH":0},"outputResources":{"DECAY":0,"ORDER":0,"ENERGY":6,"GROWTH":0},
-            retval = retval + "\"assets\":{\"availableResources\":{\"DECAY\":" + blackplayer.availableResources.DECAY + ",\"ORDER\":" + blackplayer.availableResources.ORDER + ",\"ENERGY\":" + blackplayer.availableResources.ENERGY + ",\"GROWTH\":" + blackplayer.availableResources.GROWTH + "},";
-            retval = retval + "\"outputResources\":{\"DECAY\":" + blackplayer.outputResources.DECAY + ",\"ORDER\":" + blackplayer.outputResources.ORDER + ",\"ENERGY\":" + blackplayer.outputResources.ENERGY + ",\"GROWTH\":" + blackplayer.outputResources.GROWTH + "},";
+            retval = retval + "\"assets\":{\"availableResources\":{\"DECAY\":" + blackplayer.availableResources.DECAY + ",\"ORDER\":" + blackplayer.availableResources.ORDER + ",\"ENERGY\":" + blackplayer.availableResources.ENERGY + ",\"GROWTH\":" + blackplayer.availableResources.GROWTH + ",\"SPECIAL\":" + whiteplayer.availableResources.SPECIAL + "},";
+            retval = retval + "\"outputResources\":{\"DECAY\":" + blackplayer.outputResources.DECAY + ",\"ORDER\":" + blackplayer.outputResources.ORDER + ",\"ENERGY\":" + blackplayer.outputResources.ENERGY + ",\"GROWTH\":" + blackplayer.outputResources.GROWTH + ",\"SPECIAL\":" + whiteplayer.outputResources.SPECIAL + "},";
             //"handSize":3,"librarySize":26,"graveyardSize":19}},
             retval = retval + "\"handSize\":" + blackplayer.handSize + ",\"librarySize\":" + blackplayer.librarySize + ",\"graveyardSize\":" + blackplayer.graveyardSize + "}},";
             //"activeColor":"black","phase":"Main","turn":26,"hasSacrificed":false,"secondsLeft":-1,"msg":"GameState"}

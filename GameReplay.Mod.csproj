@@ -48,6 +48,10 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Assembly-CSharp.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>..\Mono.Cecil.dll</HintPath>
     </Reference>
@@ -57,9 +61,6 @@
     <Reference Include="System" />
     <Reference Include="JsonFx">
       <HintPath>..\JsonFx.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\UnityEngine.dll</HintPath>

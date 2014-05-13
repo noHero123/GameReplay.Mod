@@ -307,9 +307,7 @@ namespace GameReplay.Mod
                 }
                 else { if (msg is GameStateMessage) this.readedGameState = true; }
 
-
                 dispatchMessages.Invoke(App.Communicator, new object[] { msg });// <---the whole magic
-
                 if (line.Contains("EndGame") && !(msg is GameChatMessageMessage) && !(msg is RoomChatMessageMessage))
                 {
                     playing = false;
@@ -330,11 +328,12 @@ namespace GameReplay.Mod
 
                     if (msg is GameStateMessage || msg is NewEffectsMessage)
                     {
-                        List<EffectMessage> effects = ((List<EffectMessage>)effectsField.GetValue(this.bm));
+                        //List<EffectMessage> effects = ((List<EffectMessage>)effectsField.GetValue(this.bm));
+                        EffectList effects = ((EffectList)effectsField.GetValue(this.bm));
                         while (effects.Count >= 1)
                         {
                             Thread.Sleep(100);
-                            effects = ((List<EffectMessage>)effectsField.GetValue(this.bm));
+                            effects = ((EffectList)effectsField.GetValue(this.bm));
                         }
                     }
                     else
