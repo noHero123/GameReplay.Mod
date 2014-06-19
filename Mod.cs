@@ -67,7 +67,7 @@ namespace GameReplay.Mod
 
 		public static int GetVersion()
 		{
-			return 10;
+			return 11;
 		}
 
 		public void handleMessage(Message msg)
@@ -364,7 +364,8 @@ namespace GameReplay.Mod
 				}
 				else if (choice.Equals("From Link"))
 				{
-					App.Popups.ShowTextInput(this, "", "Browse replays on http://www.scrollsguide.com/replays", "savedeck", "Load replay", "Paste the url of the replay:", "Load");
+					//App.Popups.ShowTextInput(this, "", "Browse replays on http://www.scrollsguide.com/replays", "savedeck", "Load replay", "Paste the url of the replay:", "Load");
+                    App.Popups.ShowTextEntry(this, "savedeck", "Load replay", "Paste the url of the replay:", "Load", "Cancel", "");
 				}
 			}
 		}

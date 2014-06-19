@@ -400,7 +400,8 @@ namespace GameReplay.Mod
                     paused = true;
                     App.AudioScript.PlaySFX("Sounds/hyperduck/UI/ui_button_click");
                     string enterturnstring = "Enter a Turn between " + this.minTurn + " and " + this.maxTurn + ":";
-                    App.Popups.ShowTextInput(this, "", "Turn 1 = First Player Round 1 / Turn 2 = Second Player Round 1 / Turn 3 = First Player Round 2 and so on.", "turn", "Turn Seek", enterturnstring, "Seek");
+                    //App.Popups.ShowTextInput(this, "", "Turn 1 = First Player Round 1 / Turn 2 = Second Player Round 1 / Turn 3 = First Player Round 2 and so on.", "turn", "Turn Seek", enterturnstring, "Seek");
+                    App.Popups.ShowTextEntry(this, "turn", "Turn Seek", enterturnstring, "Seek", "Cancel", "");
                 }
 
             }
