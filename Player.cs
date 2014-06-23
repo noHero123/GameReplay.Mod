@@ -207,9 +207,12 @@ namespace GameReplay.Mod
                     Message msg = MessageFactory.create(MessageFactory.getMessageName(line), line);
                     if (msg is GameStateMessage)
                     {
-                        this.turnToLogLine.Add((msg as GameStateMessage).turn, this.logList.Count - 1);
-                        if ((msg as GameStateMessage).turn < minTurn) minTurn = (msg as GameStateMessage).turn;
-                        if ((msg as GameStateMessage).turn > maxTurn) maxTurn = (msg as GameStateMessage).turn;
+                        if ((msg as GameStateMessage).turn > 0)
+                        {
+                            this.turnToLogLine.Add((msg as GameStateMessage).turn, this.logList.Count - 1);
+                            if ((msg as GameStateMessage).turn < minTurn) minTurn = (msg as GameStateMessage).turn;
+                            if ((msg as GameStateMessage).turn > maxTurn) maxTurn = (msg as GameStateMessage).turn;
+                        }
                     }
 
                     if (msg is NewEffectsMessage)

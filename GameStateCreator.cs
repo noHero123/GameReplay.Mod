@@ -14,7 +14,7 @@ namespace GameReplay.Mod
         private int[] blackIdolsMax = { 10, 10, 10, 10, 10 };
         private int turnnumber = 1;
 
-        private FieldInfo leftPlayerField = typeof(BattleMode).GetField("leftPlayerName", BindingFlags.NonPublic | BindingFlags.Instance);
+        private FieldInfo leftPlayerField = typeof(BattleMode).GetField("leftPlayer", BindingFlags.NonPublic | BindingFlags.Instance);
         private FieldInfo gameTypeField = typeof(BattleMode).GetField("gameType", BindingFlags.NonPublic | BindingFlags.Instance);
         //private MethodInfo unitsMethod = typeof(BattleMode).GetMethod("getUnitsFor", BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -23,7 +23,8 @@ namespace GameReplay.Mod
         // Creates a GameState Message 
         public string create(BattleMode bm, BattleModeUI bmUI, bool whitesTurn)
         {
-            string leftPlayerName = (string)leftPlayerField.GetValue(bm);
+            BMPlayer leftPlayer= (BMPlayer)leftPlayerField.GetValue(bm);
+            string leftPlayerName = leftPlayer.name;
             //string blackPlayerName = ((string)typeof(BattleMode).GetField("rightPlayerName", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(bm));
             //TileColor activeColor = ((TileColor)typeof(BattleMode).GetField("activeColor", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(bm));
             //int turnNumber = ((int)typeof(BattleMode).GetField("currentTurn", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(bm));

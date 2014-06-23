@@ -67,7 +67,7 @@ namespace GameReplay.Mod
 
 		public static int GetVersion()
 		{
-			return 11;
+			return 12;
 		}
 
 		public void handleMessage(Message msg)
@@ -201,8 +201,9 @@ namespace GameReplay.Mod
             if (info.target is BattleMode && info.targetMethod.Equals("effectDone"))
             {
                     EffectMessage currentEffect = ((EffectMessage)currentEffectField.GetValue(info.target));
-                    if (currentEffect != null && currentEffect.type == "TurnBegin" && recorder != null && recorder.recording == true)
+                    if (currentEffect != null && currentEffect.type == "TurnBegin" && currentEffect.getRawText() != null && currentEffect.getRawText().Contains("{\"TurnBegin\":") && recorder != null && recorder.recording == true)
                     {
+                        //Console.WriteLine("turnbegin end of: " + currentEffect.getRawText()); //{"TurnBegin":
                         recorder.turnBeginEnds();
                     }
 
@@ -247,6 +248,7 @@ namespace GameReplay.Mod
             }
             if (info.target is BattleMode && info.targetMethod.Equals("Start") && recorder != null && recorder.recording == true)
             {
+                Console.WriteLine("## set Bm");
                 recorder.setBm(info.target as BattleMode);
                 if (this.spectating)
                 {
@@ -258,6 +260,7 @@ namespace GameReplay.Mod
 
             if (info.target is BattleModeUI && info.targetMethod.Equals("Start") && recorder != null && recorder.recording == true)
             {
+                Console.WriteLine("## set Bmui");
                 recorder.setBmUI(info.target as BattleModeUI);
                 
             }

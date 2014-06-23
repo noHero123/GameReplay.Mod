@@ -155,7 +155,7 @@ namespace GameReplay.Mod
            if(tempmessages.Count==0) return;
             Message msg = tempmessages[0];
             this.messages.Add(msg.getRawText());
-            Console.WriteLine("### add to recorder:" + msg.getRawText() + "\r\n###");
+            Console.WriteLine("### add to recorder (turnbegin):" + msg.getRawText() + "\r\n###");
 
             if (msg is NewEffectsMessage && msg.getRawText().Contains("TurnBegin"))
             {
