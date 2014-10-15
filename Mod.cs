@@ -67,7 +67,7 @@ namespace GameReplay.Mod
 
 		public static int GetVersion()
 		{
-			return 12;
+			return 13;
 		}
 
 		public void handleMessage(Message msg)
@@ -117,6 +117,9 @@ namespace GameReplay.Mod
 					scrollsTypes["ProfileMenu"].Methods.GetMethod("drawEditButton")[0],
                     scrollsTypes["BattleMode"].Methods.GetMethod("Start")[0],
                     scrollsTypes["BattleMode"].Methods.GetMethod("effectDone")[0],
+
+                    scrollsTypes["BattleMode"].Methods.GetMethod("handleHandUpdate", new Type[]{typeof(EMHandUpdate)}),
+
                     scrollsTypes["BattleModeUI"].Methods.GetMethod("Start")[0],
                     scrollsTypes["SettingsMenu"].Methods.GetMethod("OnGUI")[0],
                     scrollsTypes["Communicator"].Methods.GetMethod("joinLobby", new Type[]{typeof(bool)}),
@@ -237,6 +240,7 @@ namespace GameReplay.Mod
             {
                 player.setbm(info.target as BattleMode);
             }
+
             if (info.target is BattleMode && info.targetMethod.Equals("Start") && this.player.playing)
             {
                 App.ChatUI.Show(false);
@@ -246,6 +250,26 @@ namespace GameReplay.Mod
                 App.ChatUI.SetEnabled(true);
                 Console.WriteLine("playing + battlemodestart");
             }
+
+            if (info.target is BattleMode && info.targetMethod.Equals("handleHandUpdate") && this.player.playing)
+            {
+                EMHandUpdate m = (EMHandUpdate)info.arguments[0];
+                BattleMode dis = (BattleMode)info.target;
+                //test
+                FieldInfo bmActiveColor = typeof(BattleMode).GetField("activeColor", BindingFlags.Instance | BindingFlags.NonPublic);
+                //MethodInfo getPlayer = typeof(BattleMode).GetMethod("getPlayer", BindingFlags.NonPublic | BindingFlags.Instance);
+                MethodInfo getPlayer = typeof(BattleMode).GetMethod("getPlayer", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(TileColor) }, null);
+                FieldInfo bmHandManager = typeof(BattleMode).GetField("handManager", BindingFlags.Instance | BindingFlags.NonPublic);
+                TileColor activeColorr = ((TileColor)bmActiveColor.GetValue(dis));
+                BMPlayer playerr = (BMPlayer)getPlayer.Invoke(dis, new object[] { activeColorr });
+                if (m.profileId == playerr.profileId)
+                {
+                    ResourceGroup availableResources = ((BattleMode)info.target).battleUI.GetResources(dis.isLeftColor(activeColorr)).availableResources;
+                    HandManager handManager = ((HandManager)bmHandManager.GetValue(dis));
+                    handManager.SetHand(m.cards, availableResources, m.profileId);
+                }
+            }
+
             if (info.target is BattleMode && info.targetMethod.Equals("Start") && recorder != null && recorder.recording == true)
             {
                 Console.WriteLine("## set Bm");
