@@ -424,11 +424,11 @@ public class UIListPopup : MonoBehaviour
 
     private void Start()
     {
-        this.lobbySkin = (GUISkin) Resources.Load("_GUISkins/Lobby");
-        this.cardListPopupSkin = (GUISkin) Resources.Load("_GUISkins/CardListPopup");
-        this.cardListPopupGradientSkin = (GUISkin) Resources.Load("_GUISkins/CardListPopupGradient");
-        this.cardListPopupBigLabelSkin = (GUISkin) Resources.Load("_GUISkins/CardListPopupBigLabel");
-        this.cardListPopupLeftButtonSkin = (GUISkin) Resources.Load("_GUISkins/CardListPopupLeftButton");
+        this.lobbySkin = (GUISkin) ResourceManager.Load("_GUISkins/Lobby");
+        this.cardListPopupSkin = (GUISkin)ResourceManager.Load("_GUISkins/CardListPopup");
+        this.cardListPopupGradientSkin = (GUISkin)ResourceManager.Load("_GUISkins/CardListPopupGradient");
+        this.cardListPopupBigLabelSkin = (GUISkin)ResourceManager.Load("_GUISkins/CardListPopupBigLabel");
+        this.cardListPopupLeftButtonSkin = (GUISkin)ResourceManager.Load("_GUISkins/CardListPopupLeftButton");
     }
 
     private void Update()

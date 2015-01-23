@@ -29,6 +29,7 @@ namespace GameReplay.Mod
         private BattleMode bm = null;
         private BattleModeUI bmui = null;
 
+        private bool loadedguiSkin = false;
         private GUISkin guiSkin;
 
         private FieldInfo currentEffectField=typeof(BattleMode).GetField("currentEffect", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -40,7 +41,7 @@ namespace GameReplay.Mod
 
         public Mod()
 		{
-            this.guiSkin = (GUISkin)Resources.Load("_GUISkins/Lobby");
+            this.loadGuiSkin();
 			//recordFolder = this.OwnFolder() + Path.DirectorySeparatorChar + "Records";
             string homePath = (Environment.OSVersion.Platform == PlatformID.Unix ||Environment.OSVersion.Platform == PlatformID.MacOSX)? Environment.GetEnvironmentVariable("HOME") : Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%");
             recordFolder = homePath + Path.DirectorySeparatorChar + "ScrollsRecords";
@@ -60,6 +61,11 @@ namespace GameReplay.Mod
             Console.WriteLine("loaded Recorder");
 		}
 
+        private void loadGuiSkin()
+        {
+            this.guiSkin = (GUISkin)ResourceManager.Load("_GUISkins/Lobby");
+        }
+
 		public static string GetName()
 		{
 			return "GameReplay";
@@ -67,7 +73,7 @@ namespace GameReplay.Mod
 
 		public static int GetVersion()
 		{
-			return 13;
+			return 133;
 		}
 
 		public void handleMessage(Message msg)
@@ -113,7 +119,7 @@ namespace GameReplay.Mod
 			try {
 				MethodDefinition[] defs = new MethodDefinition[] {
 					scrollsTypes["ProfileMenu"].Methods.GetMethod("Start")[0],
-					scrollsTypes["ProfileMenu"].Methods.GetMethod("getButtonRect", new Type[]{typeof(int)}),
+					scrollsTypes["ProfileMenu"].Methods.GetMethod("getButtonRect", new Type[]{typeof(float)}),
 					scrollsTypes["ProfileMenu"].Methods.GetMethod("drawEditButton")[0],
                     scrollsTypes["BattleMode"].Methods.GetMethod("Start")[0],
                     scrollsTypes["BattleMode"].Methods.GetMethod("effectDone")[0],
@@ -154,7 +160,7 @@ namespace GameReplay.Mod
 		public override void ReplaceMethod (InvocationInfo info, out object returnValue) {
             if (info.target is ProfileMenu && info.targetMethod.Equals("getButtonRect"))
             {
-                returnValue = (Rect)typeof(ProfileMenu).GetMethod("getButtonRect", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(info.target, new object[] { 2 });
+                returnValue = (Rect)typeof(ProfileMenu).GetMethod("getButtonRect", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(info.target, new object[] { 2f });
             }
             else
             {
@@ -188,6 +194,11 @@ namespace GameReplay.Mod
 				}
 				else
 				{
+                    if (!this.loadedguiSkin)
+                    {
+                        this.loadGuiSkin();
+                        this.loadedguiSkin = true;
+                    }
 					new ScrollsFrame(new Rect(rect.center.x - rect.width / 2.0f - 20.0f, rect.center.y - rect.height / 2.0f, rect.width + 40.0f, rect.height - (float)Screen.height * 0.055f - 20.0f)).AddNinePatch(ScrollsFrame.Border.DARK_CURVED, NinePatch.Patches.CENTER).Draw();
 					recordListPopup.enabled = true;
 					recordListPopup.SetOpacity(1f);
@@ -221,9 +232,14 @@ namespace GameReplay.Mod
 
 		public override void AfterInvoke(InvocationInfo info, ref object returnValue)
         {
+
             if (info.target is SettingsMenu && info.targetMethod.Equals("OnGUI"))
             {
-
+                if (!this.loadedguiSkin)
+                {
+                    this.loadGuiSkin();
+                    this.loadedguiSkin = true;
+                }
                 string label = "ask after match";
                 if (!this.sttngs.alwayssave) label = "never ask";
                 if (LobbyMenu.drawButton((Rect)this.sttngs.getButtonRect(1), label, this.guiSkin))//(GUISkin)guiSkinField.GetValue(info.target)
@@ -418,6 +434,7 @@ namespace GameReplay.Mod
 		}
 
 		public void parseRecord(String file) {
+            Console.WriteLine("read record-file: " + file);
 			JsonMessageSplitter jsonms = new JsonMessageSplitter();
 			String log = File.ReadAllText(file);
 			jsonms.feed(log);

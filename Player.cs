@@ -31,7 +31,9 @@ namespace GameReplay.Mod
 		private Texture2D playButton;
         private MethodInfo dispatchMessages;
 
+        private bool didButtonStyle = false;
         private GUIStyle buttonStyle;
+
         private int seekTurn = 0;
         private bool readedGameState=false;
 
@@ -48,22 +50,20 @@ namespace GameReplay.Mod
 			pauseButton.LoadImage(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("GameReplay.Mod.Pause.png").ReadToEnd());
 			//this.saveFolder = saveFolder;
             dispatchMessages = typeof(MiniCommunicator).GetMethod("_dispatchMessageToListeners", BindingFlags.NonPublic | BindingFlags.Instance);
+        
+        
+        }
 
-
-
-
-            GUISkin skin = (GUISkin)Resources.Load("_GUISkins/LobbyMenu");
+        private void setButtonStyle()
+        {
+            GUISkin skin = (GUISkin)ResourceManager.Load("_GUISkins/LobbyMenu");
             this.buttonStyle = skin.button;
             this.buttonStyle.normal.background = this.buttonStyle.hover.background;
             this.buttonStyle.normal.textColor = new Color(1f, 1f, 1f, 1f);
             this.buttonStyle.fontSize = (int)((10 + Screen.height / 72) * 0.65f);
-
             this.buttonStyle.hover.textColor = new Color(0.80f, 0.80f, 0.80f, 1f);
-
             this.buttonStyle.active.background = this.buttonStyle.hover.background;
             this.buttonStyle.active.textColor = new Color(0.60f, 0.60f, 0.60f, 1f);
-        
-        
         
         }
 
@@ -368,6 +368,12 @@ namespace GameReplay.Mod
 		{
             if(info.target is BattleMode && info.targetMethod.Equals("OnGUI") && playing)
             {
+                if (!this.didButtonStyle)
+                {
+                    this.setButtonStyle();
+                    this.didButtonStyle = true;
+                }
+
                 int depth = GUI.depth;
 
                 // Container
